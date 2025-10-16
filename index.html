@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - Portal Layanan Dinas Pendidikan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        .sidebar-transition {
+            transition: all 0.3s ease;
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .notification {
+            animation: slideIn 0.5s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .modal {
+            backdrop-filter: blur(5px);
+        }
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg sidebar-transition z-40">
+        <div class="p-6 border-b">
+            <div class="flex items-center space-x-3">
+                <div class="bg-blue-600 text-white rounded-lg p-2">
+                    <i class="fas fa-graduation-cap text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-gray-800">Admin Portal</h1>
+                    <p class="text-sm text-gray-600">Dinas Pendidikan</p>
+                </div>
+            </div>
+        </div>
+
+        <nav class="mt-6">
+            <div class="px-6 mb-4">
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Menu Utama</h3>
+            </div>
+            
+            <a href="#" onclick="showSection('dashboard')" class="nav-item flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                <i class="fas fa-tachometer-alt mr-3"></i>
+                Dashboard
+            </a>
+            
+            <a href="#" onclick="showSection('applications')" class="nav-item flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                <i class="fas fa-file-alt mr-3"></i>
+                Permohonan
+                <span class="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-1">12</span>
+            </a>
+            
+            <a href="#" onclick="showSection('users')" class="nav-item flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                <i class="fas fa-users mr-3"></i>
+                Pengguna
+            </a>
+            
+            <a href="#" onclick="showSection('services')" class="nav-item flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                <i class="fas fa-cogs mr-3"></i>
+                Layanan
+            </a>
+            
+            <a href="#" onclick="showSection('announcements')" class="nav-item flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                <i class="fas fa-bullhorn mr-3"></i>
+                Pengumuman
+            </a>
+            
+            <a href="#" onclick="showSection('reports')" class="nav-item flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                <i class="fas fa-chart-bar mr-3"></i>
+                Laporan
+            </a>
+            
+            <div class="px-6 mt-8 mb-4">
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Sistem</h3>
+            </div>
+            
+            <a href="#" onclick="showSection('settings')" class="nav-item flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                <i class="fas fa-cog mr-3"></i>
+                Pengaturan
+            </a>
+            
+            <a href="#" onclick="logout()" class="nav-item flex items-center px-6 py-3 text-red-600 hover:bg-red-50 transition-colors">
+                <i class="fas fa-sign-out-alt mr-3"></i>
+                Keluar
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <button onclick="toggleSidebar()" class="text-gray-500 hover:text-gray-700 lg:hidden">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h2 id="page-title" class="text-2xl font-semibold text-gray-800">Dashboard</h2>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button class="text-gray-500 hover:text-gray-700 relative">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
+                        </button>
+                    </div>
+                    
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user text-white text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-800">Admin User</p>
+                            <p class="text-xs text-gray-500">Administrator</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <main class="p-6">
+            <!-- Dashboard Section -->
+            <div id="dashboard-section" class="section-content">
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white rounded-lg shadow-sm p-6 card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Total Permohonan</p>
+                                <p class="text-3xl font-bold text-gray-900">1,234</p>
+                                <p class="text-sm text-green-600">+12% dari bulan lalu</p>
+                            </div>
+                            <div class="bg-blue-100 p-3 rounded-full">
+                                <i class="fas fa-file-alt text-blue-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-sm p-6 card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Permohonan Pending</p>
+                                <p class="text-3xl font-bold text-gray-900">56</p>
+                                <p class="text-sm text-yellow-600">Perlu ditindaklanjuti</p>
+                            </div>
+                            <div class="bg-yellow-100 p-3 rounded-full">
+                                <i class="fas fa-clock text-yellow-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-sm p-6 card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Pengguna Aktif</p>
+                                <p class="text-3xl font-bold text-gray-900">892</p>
+                                <p class="text-sm text-green-600">+8% dari bulan lalu</p>
+                            </div>
+                            <div class="bg-green-100 p-3 rounded-full">
+                                <i class="fas fa-users text-green-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-sm p-6 card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Layanan Aktif</p>
+                                <p class="text-3xl font-bold text-gray-900">24</p>
+                                <p class="text-sm text-blue-600">Semua berjalan normal</p>
+                            </div>
+                            <div class="bg-purple-100 p-3 rounded-full">
+                                <i class="fas fa-cogs text-purple-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white rounded-lg shadow-sm p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Statistik Permohonan Bulanan</h3>
+                        <canvas id="monthlyChart" width="400" height="200"></canvas>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-sm p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Jenis Layanan Populer</h3>
+                        <canvas id="serviceChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recent Applications -->
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">Permohonan Terbaru</h3>
+                        <button onclick="showSection('applications')" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                            Lihat Semua
+                        </button>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="border-b">
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">No. Permohonan</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Pemohon</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Layanan</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Status</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Tanggal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="py-3 px-4">PRM2024001234</td>
+                                    <td class="py-3 px-4">Ahmad Wijaya</td>
+                                    <td class="py-3 px-4">Kenaikan Pangkat</td>
+                                    <td class="py-3 px-4">
+                                        <span class="status-badge bg-yellow-100 text-yellow-800">Pending</span>
+                                    </td>
+                                    <td class="py-3 px-4">15 Jan 2024</td>
+                                </tr>
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="py-3 px-4">PRM2024001235</td>
+                                    <td class="py-3 px-4">Siti Nurhaliza</td>
+                                    <td class="py-3 px-4">NUPTK</td>
+                                    <td class="py-3 px-4">
+                                        <span class="status-badge bg-blue-100 text-blue-800">Diproses</span>
+                                    </td>
+                                    <td class="py-3 px-4">15 Jan 2024</td>
+                                </tr>
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="py-3 px-4">PRM2024001236</td>
+                                    <td class="py-3 px-4">Budi Santoso</td>
+                                    <td class="py-3 px-4">Mutasi Guru</td>
+                                    <td class="py-3 px-4">
+                                        <span class="status-badge bg-green-100 text-green-800">Selesai</span>
+                                    </td>
+                                    <td class="py-3 px-4">14 Jan 2024</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Applications Section -->
+            <div id="applications-section" class="section-content hidden">
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800">Manajemen Permohonan</h3>
+                        <div class="flex space-x-3">
+                            <select class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                                <option>Semua Status</option>
+                                <option>Pending</option>
+                                <option>Diproses</option>
+                                <option>Selesai</option>
+                                <option>Ditolak</option>
+                            </select>
+                            <input type="text" placeholder="Cari permohonan..." class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="border-b">
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">
+                                        <input type="checkbox" class="rounded">
+                                    </th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">No. Permohonan</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Pemohon</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Layanan</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Status</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Tanggal</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="applications-table">
+                                <!-- Applications will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="flex items-center justify-between mt-6">
+                        <p class="text-sm text-gray-600">Menampilkan 1-10 dari 156 permohonan</p>
+                        <div class="flex space-x-2">
+                            <button class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">Sebelumnya</button>
+                            <button class="px-3 py-1 bg-blue-600 text-white rounded text-sm">1</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">2</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">3</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">Selanjutnya</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Section -->
+            <div id="users-section" class="section-content hidden">
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800">Manajemen Pengguna</h3>
+                        <button onclick="showAddUserModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-plus mr-2"></i>Tambah Pengguna
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-blue-800">Total Pengguna</h4>
+                            <p class="text-2xl font-bold text-blue-900">892</p>
+                        </div>
+                        <div class="bg-green-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-green-800">Aktif Bulan Ini</h4>
+                            <p class="text-2xl font-bold text-green-900">654</p>
+                        </div>
+                        <div class="bg-yellow-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-yellow-800">Pengguna Baru</h4>
+                            <p class="text-2xl font-bold text-yellow-900">23</p>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="border-b">
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Nama</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Email</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Role</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Status</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Bergabung</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-600">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="py-3 px-4">Ahmad Wijaya</td>
+                                    <td class="py-3 px-4">ahmad@email.com</td>
+                                    <td class="py-3 px-4">Guru</td>
+                                    <td class="py-3 px-4">
+                                        <span class="status-badge bg-green-100 text-green-800">Aktif</span>
+                                    </td>
+                                    <td class="py-3 px-4">10 Jan 2024</td>
+                                    <td class="py-3 px-4">
+                                        <button class="text-blue-600 hover:text-blue-800 mr-2">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-800">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <!-- More user rows would be here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Services Section -->
+            <div id="services-section" class="section-content hidden">
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800">Manajemen Layanan</h3>
+                        <button onclick="showAddServiceModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-plus mr-2"></i>Tambah Layanan
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="font-semibold text-gray-800">Kenaikan Pangkat</h4>
+                                <span class="status-badge bg-green-100 text-green-800">Aktif</span>
+                            </div>
+                            <p class="text-gray-600 text-sm mb-4">Layanan pengusulan kenaikan pangkat untuk guru dan tenaga kependidikan.</p>
+                            <div class="flex items-center justify-between text-sm text-gray-500">
+                                <span>234 permohonan</span>
+                                <div class="space-x-2">
+                                    <button class="text-blue-600 hover:text-blue-800">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="text-red-600 hover:text-red-800">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="font-semibold text-gray-800">NUPTK</h4>
+                                <span class="status-badge bg-green-100 text-green-800">Aktif</span>
+                            </div>
+                            <p class="text-gray-600 text-sm mb-4">Penerbitan Nomor Unik Pendidik dan Tenaga Kependidikan.</p>
+                            <div class="flex items-center justify-between text-sm text-gray-500">
+                                <span>156 permohonan</span>
+                                <div class="space-x-2">
+                                    <button class="text-blue-600 hover:text-blue-800">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="text-red-600 hover:text-red-800">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="font-semibold text-gray-800">Mutasi Guru</h4>
+                                <span class="status-badge bg-yellow-100 text-yellow-800">Maintenance</span>
+                            </div>
+                            <p class="text-gray-600 text-sm mb-4">Layanan mutasi guru antar sekolah atau wilayah.</p>
+                            <div class="flex items-center justify-between text-sm text-gray-500">
+                                <span>89 permohonan</span>
+                                <div class="space-x-2">
+                                    <button class="text-blue-600 hover:text-blue-800">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="text-red-600 hover:text-red-800">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Announcements Section -->
+            <div id="announcements-section" class="section-content hidden">
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800">Manajemen Pengumuman</h3>
+                        <button onclick="showAddAnnouncementModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-plus mr-2"></i>Buat Pengumuman
+                        </button>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <h4 class="font-semibold text-gray-800 mb-2">Pembukaan Pendaftaran PPG 2024</h4>
+                                    <p class="text-gray-600 mb-3">Pendaftaran Program Pendidikan Profesi Guru dibuka mulai 15 Januari 2024. Silakan siapkan berkas-berkas yang diperlukan...</p>
+                                    <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                        <span><i class="fas fa-calendar mr-1"></i>10 Jan 2024</span>
+                                        <span><i class="fas fa-eye mr-1"></i>1,234 views</span>
+                                        <span class="status-badge bg-green-100 text-green-800">Published</span>
+                                    </div>
+                                </div>
+                                <div class="flex space-x-2 ml-4">
+                                    <button class="text-blue-600 hover:text-blue-800">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="text-red-600 hover:text-red-800">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <h4 class="font-semibold text-gray-800 mb-2">Sistem E-Layanan Terbaru</h4>
+                                    <p class="text-gray-600 mb-3">Portal layanan online telah diperbarui dengan fitur tracking real-time untuk memudahkan pemantauan status permohonan...</p>
+                                    <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                        <span><i class="fas fa-calendar mr-1"></i>5 Jan 2024</span>
+                                        <span><i class="fas fa-eye mr-1"></i>892 views</span>
+                                        <span class="status-badge bg-green-100 text-green-800">Published</span>
+                                    </div>
+                                </div>
+                                <div class="flex space-x-2 ml-4">
+                                    <button class="text-blue-600 hover:text-blue-800">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="text-red-600 hover:text-red-800">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Section -->
+            <div id="reports-section" class="section-content hidden">
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-6">Laporan & Analitik</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                        <div class="border border-gray-200 rounded-lg p-6 text-center hover:shadow-md transition-shadow cursor-pointer">
+                            <i class="fas fa-file-pdf text-red-500 text-3xl mb-3"></i>
+                            <h4 class="font-semibold text-gray-800 mb-2">Laporan Bulanan</h4>
+                            <p class="text-gray-600 text-sm mb-4">Laporan permohonan dan layanan bulan ini</p>
+                            <button onclick="generateReport('monthly')" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors">
+                                Download PDF
+                            </button>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-6 text-center hover:shadow-md transition-shadow cursor-pointer">
+                            <i class="fas fa-file-excel text-green-500 text-3xl mb-3"></i>
+                            <h4 class="font-semibold text-gray-800 mb-2">Data Pengguna</h4>
+                            <p class="text-gray-600 text-sm mb-4">Export data pengguna dalam format Excel</p>
+                            <button onclick="generateReport('users')" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors">
+                                Download Excel
+                            </button>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-6 text-center hover:shadow-md transition-shadow cursor-pointer">
+                            <i class="fas fa-chart-line text-blue-500 text-3xl mb-3"></i>
+                            <h4 class="font-semibold text-gray-800 mb-2">Analitik Layanan</h4>
+                            <p class="text-gray-600 text-sm mb-4">Statistik penggunaan layanan</p>
+                            <button onclick="generateReport('analytics')" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">
+                                Lihat Detail
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h4 class="font-semibold text-gray-800 mb-4">Performa Layanan</h4>
+                            <canvas id="performanceChart" width="400" height="200"></canvas>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-6">
+                            <h4 class="font-semibold text-gray-800 mb-4">Tingkat Kepuasan</h4>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-gray-600">Sangat Puas</span>
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-32 bg-gray-200 rounded-full h-2">
+                                            <div class="bg-green-500 h-2 rounded-full" style="width: 75%"></div>
+                                        </div>
+                                        <span class="text-sm text-gray-500">75%</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-gray-600">Puas</span>
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-32 bg-gray-200 rounded-full h-2">
+                                            <div class="bg-blue-500 h-2 rounded-full" style="width: 20%"></div>
+                                        </div>
+                                        <span class="text-sm text-gray-500">20%</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-gray-600">Kurang Puas</span>
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-32 bg-gray-200 rounded-full h-2">
+                                            <div class="bg-yellow-500 h-2 rounded-full" style="width: 5%"></div>
+                                        </div>
+                                        <span class="text-sm text-gray-500">5%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Section -->
+            <div id="settings-section" class="section-content hidden">
+                <div class="space-y-6">
+                    <div class="bg-white rounded-lg shadow-sm p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-6">Pengaturan Sistem</h3>
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Nama Portal</label>
+                                <input type="text" value="Dinas Pendidikan dan Kebudayaan Kab. Kolaka Timur" 
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Email Kontak</label>
+                                <input type="email" value="info@disdik.go.id" 
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Alamat</label>
+                                <textarea rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none">Jl. Pendidikan No. 45, Kota Pendidikan, Provinsi 12345</textarea>
+                            </div>
+
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h4 class="font-medium text-gray-800">Notifikasi Email</h4>
+                                    <p class="text-sm text-gray-600">Kirim notifikasi email untuk permohonan baru</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" checked class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
+
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h4 class="font-medium text-gray-800">Mode Maintenance</h4>
+                                    <p class="text-sm text-gray-600">Aktifkan mode maintenance untuk portal</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
+
+                            <div class="pt-4 border-t">
+                                <button onclick="saveSettings()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                    Simpan Pengaturan
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-sm p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-6">Backup & Restore</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <h4 class="font-medium text-gray-800 mb-2">Backup Database</h4>
+                                <p class="text-sm text-gray-600 mb-4">Backup terakhir: 15 Jan 2024, 10:30</p>
+                                <button onclick="createBackup()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors">
+                                    Buat Backup
+                                </button>
+                            </div>
+
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <h4 class="font-medium text-gray-800 mb-2">Restore Database</h4>
+                                <p class="text-sm text-gray-600 mb-4">Restore dari file backup</p>
+                                <input type="file" accept=".sql,.zip" class="mb-2 text-sm">
+                                <button onclick="restoreBackup()" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 transition-colors">
+                                    Restore
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add User Modal -->
+    <div id="add-user-modal" class="fixed inset-0 bg-black bg-opacity-50 modal hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold">Tambah Pengguna Baru</h3>
+                <button onclick="closeModal('add-user-modal')" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form onsubmit="addUser(event)" class="space-y-4">
+                <div>
+                    <label for="user-name" class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
+                    <input type="text" id="user-name" required 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none">
+                </div>
+                
+                <div>
+                    <label for="user-email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                    <input type="email" id="user-email" required 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none">
+                </div>
+                
+                <div>
+                    <label for="user-role" class="block text-sm font-medium text-gray-700 mb-2">Role</label>
+                    <select id="user-role" required 
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none">
+                        <option value="">Pilih Role</option>
+                        <option value="admin">Administrator</option>
+                        <option value="operator">Operator</option>
+                        <option value="guru">Guru</option>
+                        <option value="user">User</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="user-password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                    <input type="password" id="user-password" required minlength="6" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none">
+                </div>
+                
+                <div class="flex space-x-3 pt-4">
+                    <button type="submit" class="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        Tambah Pengguna
+                    </button>
+                    <button type="button" onclick="closeModal('add-user-modal')" class="flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                        Batal
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg hidden notification z-50">
+        <span id="notification-message"></span>
+    </div>
+
+    <script>
+        // Global state
+        let currentSection = 'dashboard';
+        let sidebarOpen = true;
+
+        // Sample data
+        const applicationsData = [
+            { id: 'PRM2024001234', name: 'Ahmad Wijaya', service: 'Kenaikan Pangkat', status: 'pending', date: '15 Jan 2024' },
+            { id: 'PRM2024001235', name: 'Siti Nurhaliza', service: 'NUPTK', status: 'processing', date: '15 Jan 2024' },
+            { id: 'PRM2024001236', name: 'Budi Santoso', service: 'Mutasi Guru', status: 'completed', date: '14 Jan 2024' },
+            { id: 'PRM2024001237', name: 'Dewi Sartika', service: 'Izin Operasional', status: 'pending', date: '14 Jan 2024' },
+            { id: 'PRM2024001238', name: 'Rudi Hartono', service: 'Kenaikan Pangkat', status: 'rejected', date: '13 Jan 2024' }
+        ];
+
+        // Navigation functions
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section-content').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId + '-section').classList.remove('hidden');
+            
+            // Update page title
+            const titles = {
+                'dashboard': 'Dashboard',
+                'applications': 'Manajemen Permohonan',
+                'users': 'Manajemen Pengguna',
+                'services': 'Manajemen Layanan',
+                'announcements': 'Manajemen Pengumuman',
+                'reports': 'Laporan & Analitik',
+                'settings': 'Pengaturan Sistem'
+            };
+            
+            document.getElementById('page-title').textContent = titles[sectionId] || 'Dashboard';
+            
+            // Update active nav item
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('bg-blue-50', 'text-blue-600');
+            });
+            
+            currentSection = sectionId;
+            
+            // Load section-specific data
+            if (sectionId === 'applications') {
+                loadApplicationsTable();
+            }
+        }
+
+        // Sidebar toggle
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.querySelector('.ml-64');
+            
+            if (sidebarOpen) {
+                sidebar.style.transform = 'translateX(-100%)';
+                mainContent.classList.remove('ml-64');
+                mainContent.classList.add('ml-0');
+            } else {
+                sidebar.style.transform = 'translateX(0)';
+                mainContent.classList.remove('ml-0');
+                mainContent.classList.add('ml-64');
+            }
+            
+            sidebarOpen = !sidebarOpen;
+        }
+
+        // Load applications table
+        function loadApplicationsTable() {
+            const tbody = document.getElementById('applications-table');
+            tbody.innerHTML = '';
+            
+            applicationsData.forEach(app => {
+                const statusClass = {
+                    'pending': 'bg-yellow-100 text-yellow-800',
+                    'processing': 'bg-blue-100 text-blue-800',
+                    'completed': 'bg-green-100 text-green-800',
+                    'rejected': 'bg-red-100 text-red-800'
+                };
+                
+                const statusText = {
+                    'pending': 'Pending',
+                    'processing': 'Diproses',
+                    'completed': 'Selesai',
+                    'rejected': 'Ditolak'
+                };
+                
+                const row = `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="py-3 px-4">
+                            <input type="checkbox" class="rounded">
+                        </td>
+                        <td class="py-3 px-4 font-medium">${app.id}</td>
+                        <td class="py-3 px-4">${app.name}</td>
+                        <td class="py-3 px-4">${app.service}</td>
+                        <td class="py-3 px-4">
+                            <span class="status-badge ${statusClass[app.status]}">${statusText[app.status]}</span>
+                        </td>
+                        <td class="py-3 px-4">${app.date}</td>
+                        <td class="py-3 px-4">
+                            <div class="flex space-x-2">
+                                <button onclick="viewApplication('${app.id}')" class="text-blue-600 hover:text-blue-800" title="Lihat Detail">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button onclick="approveApplication('${app.id}')" class="text-green-600 hover:text-green-800" title="Setujui">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button onclick="rejectApplication('${app.id}')" class="text-red-600 hover:text-red-800" title="Tolak">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+
+        // Application actions
+        function viewApplication(id) {
+            showNotification(`Membuka detail permohonan ${id}`);
+        }
+
+        function approveApplication(id) {
+            showNotification(`Permohonan ${id} telah disetujui`, 'success');
+            // Update status in data and reload table
+            const app = applicationsData.find(a => a.id === id);
+            if (app) app.status = 'completed';
+            loadApplicationsTable();
+        }
+
+        function rejectApplication(id) {
+            showNotification(`Permohonan ${id} telah ditolak`, 'error');
+            // Update status in data and reload table
+            const app = applicationsData.find(a => a.id === id);
+            if (app) app.status = 'rejected';
+            loadApplicationsTable();
+        }
+
+        // Modal functions
+        function showAddUserModal() {
+            document.getElementById('add-user-modal').classList.remove('hidden');
+            document.getElementById('add-user-modal').classList.add('flex');
+        }
+
+        function showAddServiceModal() {
+            showNotification('Fitur tambah layanan akan segera tersedia');
+        }
+
+        function showAddAnnouncementModal() {
+            showNotification('Fitur tambah pengumuman akan segera tersedia');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+            document.getElementById(modalId).classList.remove('flex');
+        }
+
+        // User management
+        function addUser(event) {
+            event.preventDefault();
+            const name = document.getElementById('user-name').value;
+            const email = document.getElementById('user-email').value;
+            const role = document.getElementById('user-role').value;
+            
+            showNotification(`Pengguna ${name} berhasil ditambahkan`);
+            closeModal('add-user-modal');
+            event.target.reset();
+        }
+
+        // Report generation
+        function generateReport(type) {
+            const reportTypes = {
+                'monthly': 'Laporan Bulanan',
+                'users': 'Data Pengguna',
+                'analytics': 'Analitik Layanan'
+            };
+            
+            showNotification(`Generating ${reportTypes[type]}...`);
+            
+            // Simulate report generation
+            setTimeout(() => {
+                showNotification(`${reportTypes[type]} berhasil dibuat dan siap diunduh`);
+            }, 2000);
+        }
+
+        // Settings
+        function saveSettings() {
+            showNotification('Pengaturan berhasil disimpan');
+        }
+
+        function createBackup() {
+            showNotification('Backup database sedang dibuat...');
+            setTimeout(() => {
+                showNotification('Backup berhasil dibuat');
+            }, 3000);
+        }
+
+        function restoreBackup() {
+            showNotification('Restore database sedang diproses...');
+            setTimeout(() => {
+                showNotification('Database berhasil di-restore');
+            }, 5000);
+        }
+
+        // Logout
+        function logout() {
+            if (confirm('Apakah Anda yakin ingin keluar?')) {
+                showNotification('Logout berhasil');
+                // Redirect to login page
+                setTimeout(() => {
+                    window.location.href = '#';
+                }, 1500);
+            }
+        }
+
+        // Notification system
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const messageElement = document.getElementById('notification-message');
+            
+            messageElement.textContent = message;
+            
+            // Set color based on type
+            notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg notification z-50 ${
+                type === 'error' ? 'bg-red-500' : 'bg-green-500'
+            } text-white`;
+            
+            notification.classList.remove('hidden');
+            
+            // Auto hide after 4 seconds
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 4000);
+        }
+
+        // Initialize charts
+        function initializeCharts() {
+            // Monthly applications chart
+            const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+            new Chart(monthlyCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des', 'Jan'],
+                    datasets: [{
+                        label: 'Permohonan',
+                        data: [65, 78, 90, 81, 96, 105, 134],
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Service popularity chart
+            const serviceCtx = document.getElementById('serviceChart').getContext('2d');
+            new Chart(serviceCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Kenaikan Pangkat', 'NUPTK', 'Mutasi Guru', 'Izin Operasional', 'Lainnya'],
+                    datasets: [{
+                        data: [35, 25, 20, 15, 5],
+                        backgroundColor: [
+                            'rgb(59, 130, 246)',
+                            'rgb(16, 185, 129)',
+                            'rgb(245, 158, 11)',
+                            'rgb(239, 68, 68)',
+                            'rgb(156, 163, 175)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Performance chart
+            const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+            new Chart(performanceCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Kenaikan Pangkat', 'NUPTK', 'Mutasi Guru', 'Izin Operasional'],
+                    datasets: [{
+                        label: 'Rata-rata Waktu (hari)',
+                        data: [35, 18, 42, 28],
+                        backgroundColor: 'rgba(59, 130, 246, 0.8)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Hari'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            showSection('dashboard');
+            initializeCharts();
+            
+            // Set active nav item for dashboard
+            document.querySelector('a[onclick="showSection(\'dashboard\')"]').classList.add('bg-blue-50', 'text-blue-600');
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98f69d238639678e',t:'MTc2MDYwNzgyNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
